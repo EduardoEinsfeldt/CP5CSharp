@@ -1,39 +1,52 @@
-﻿using Loggu.Domain.Entity;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+using Loggu.Domain.Entity;
+using Loggu.Infraestructure.Context;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Loggu.Infraestructure.Mapping
 {
-    public class CheckMapping : IEntityTypeConfiguration<Check>
+    public static class CheckMapping
     {
-        public void Configure(EntityTypeBuilder<Check> e)
+        private const string CollectionName = "checks";
+
+        public static void Ensure(LogguContext ctx)
         {
-            e.ToTable(
-                "Check",
-                tb =>
-                {
-                    
-                    tb.HasCheckConstraint("CK_Check_PneuOk_ZeroUm", "PneuOk IN (0,1)");
-                    tb.HasCheckConstraint("CK_Check_FreioOk_ZeroUm", "FreioOk IN (0,1)");
-                    tb.HasCheckConstraint("CK_Check_LuzesOk_ZeroUm", "LuzesOk IN (0,1)");
-                    tb.HasCheckConstraint("CK_Check_DocumentosOk_ZeroUm", "DocumentosOk IN (0,1)");
-                    tb.HasCheckConstraint("CK_Check_AptaParaUso_ZeroUm", "AptaParaUso IN (0,1)");
-                }
-            );
+            var db = ctx.Database;
+            var validator = new BsonDocument {
+                { "$jsonSchema", new BsonDocument {
+                    { "bsonType", "object" },
+                    // Required fields from Check.cs
+                    { "required", new BsonArray { "Id", "MotoId", "PneuOk", "FreioOk", "LuzesOk", "DocumentosOk", "AptaParaUso", "RealizadoEm" } },
+                    { "properties", new BsonDocument {
+                        { "Id", new BsonDocument { { "bsonType", "int" } } },
+                        { "MotoId", new BsonDocument { { "bsonType", "int" } } },
+                        { "RealizadoPorUsuarioId", new BsonDocument { { "bsonType", new BsonArray { "int", "null" } } } },
+                        { "Quilometragem", new BsonDocument { { "bsonType", new BsonArray { "int", "null" } } } },
+                        // Range(0, 1) validation
+                        { "PneuOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
+                        { "FreioOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
+                        { "LuzesOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
+                        { "DocumentosOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
+                        { "AptaParaUso", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
+                        { "Observacao", new BsonDocument { { "bsonType", new BsonArray { "string", "null" } }, { "maxLength", 500 } } },
+                        { "RealizadoEm", new BsonDocument { { "bsonType", "date" } } }
+                    }}
+                }}
+            };
+            
+            var collections = db.ListCollectionNames().ToList();
+            if (!collections.Contains(CollectionName))
+                db.CreateCollection(CollectionName, new CreateCollectionOptions<BsonDocument> { Validator = new BsonDocumentFilterDefinition<BsonDocument>(validator) });
+            else
+                db.RunCommand<BsonDocument>(new BsonDocument { { "collMod", CollectionName }, { "validator", validator }, { "validationLevel", "moderate" } });
 
-            e.HasKey(x => x.Id);
-
-            e.Property(x => x.MotoId).IsRequired();
-            e.Property(x => x.Quilometragem);
-
-            e.Property(x => x.PneuOk).IsRequired();
-            e.Property(x => x.FreioOk).IsRequired();
-            e.Property(x => x.LuzesOk).IsRequired();
-            e.Property(x => x.DocumentosOk).IsRequired();
-            e.Property(x => x.AptaParaUso).IsRequired();
-
-            e.Property(x => x.RealizadoEm).IsRequired();
-            e.Property(x => x.Observacao).HasMaxLength(500);
+            var col = db.GetCollection<Check>(CollectionName);
+            var indexes = new List<CreateIndexModel<Check>>
+            {
+                new(Builders<Check>.IndexKeys.Ascending(x => x.Id), new CreateIndexOptions { Name = "pk_check_id", Unique = true }),
+                new(Builders<Check>.IndexKeys.Ascending(x => x.MotoId).Descending(x => x.RealizadoEm), new CreateIndexOptions { Name = "ix_check_motoid_realizadoem" })
+            };
+            col.Indexes.CreateMany(indexes);
         }
     }
 }
