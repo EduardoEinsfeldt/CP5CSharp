@@ -17,22 +17,7 @@ namespace Loggu.Infrastructure.Repositories
             _col = ctx.Usuarios;
             _counters = ctx.Database.GetCollection<BsonDocument>("_counters");
 
-            // Índices:
-            // 1) Id único (equivalente a PK)
-            // 2) Email único e "sparse" (permite vários docs sem email/null)
-            var indexes = new List<CreateIndexModel<Usuario>>
-            {
-                new(
-                    Builders<Usuario>.IndexKeys.Ascending(u => u.Id),
-                    new CreateIndexOptions { Name = "pk_usuario_id", Unique = true }
-                ),
-                new(
-                    Builders<Usuario>.IndexKeys.Ascending(u => u.Email),
-                    new CreateIndexOptions { Name = "uk_usuario_email", Unique = true, Sparse = true }
-                )
-            };
-
-            _col.Indexes.CreateMany(indexes);
+    
         }
 
         private async Task<int> NextIdAsync(CancellationToken ct)

@@ -10,7 +10,7 @@ namespace Loggu.Domain.Entity
         [Required]
         public int MotoId { get; set; }
 
-        // Ex.: "DANO", "MULTA", "PANE"
+      
         [Required, StringLength(40, MinimumLength = 3)]
         public string Categoria { get; set; } = "DANO";
 

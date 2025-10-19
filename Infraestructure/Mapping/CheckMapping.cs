@@ -15,14 +15,14 @@ namespace Loggu.Infraestructure.Mapping
             var validator = new BsonDocument {
                 { "$jsonSchema", new BsonDocument {
                     { "bsonType", "object" },
-                    // Required fields from Check.cs
-                    { "required", new BsonArray { "Id", "MotoId", "PneuOk", "FreioOk", "LuzesOk", "DocumentosOk", "AptaParaUso", "RealizadoEm" } },
+                
+                    { "required", new BsonArray { "_id", "MotoId", "PneuOk", "FreioOk", "LuzesOk", "DocumentosOk", "AptaParaUso", "RealizadoEm" } },
                     { "properties", new BsonDocument {
-                        { "Id", new BsonDocument { { "bsonType", "int" } } },
+                        { "_id", new BsonDocument { { "bsonType", "int" } } },
                         { "MotoId", new BsonDocument { { "bsonType", "int" } } },
                         { "RealizadoPorUsuarioId", new BsonDocument { { "bsonType", new BsonArray { "int", "null" } } } },
                         { "Quilometragem", new BsonDocument { { "bsonType", new BsonArray { "int", "null" } } } },
-                        // Range(0, 1) validation
+                   
                         { "PneuOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
                         { "FreioOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
                         { "LuzesOk", new BsonDocument { { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } } },
@@ -43,7 +43,7 @@ namespace Loggu.Infraestructure.Mapping
             var col = db.GetCollection<Check>(CollectionName);
             var indexes = new List<CreateIndexModel<Check>>
             {
-                new(Builders<Check>.IndexKeys.Ascending(x => x.Id), new CreateIndexOptions { Name = "pk_check_id", Unique = true }),
+    
                 new(Builders<Check>.IndexKeys.Ascending(x => x.MotoId).Descending(x => x.RealizadoEm), new CreateIndexOptions { Name = "ix_check_motoid_realizadoem" })
             };
             col.Indexes.CreateMany(indexes);

@@ -16,13 +16,6 @@ namespace Loggu.Infrastructure.Repositories
         {
             _col = ctx.Motos;
             _counters = ctx.Database.GetCollection<BsonDocument>("_counters");
-
-            // Índice único em Placa (igual ao comportamento que você já tratava)
-            var idx = new CreateIndexModel<Moto>(
-                Builders<Moto>.IndexKeys.Ascending(x => x.Placa),
-                new CreateIndexOptions { Unique = true, Name = "uk_moto_placa" }
-            );
-            _col.Indexes.CreateOne(idx);
         }
 
         private async Task<int> NextIdAsync(CancellationToken ct)

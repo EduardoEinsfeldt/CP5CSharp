@@ -8,13 +8,13 @@ namespace Loggu.Domain.Entity
         [Key]
         public int Id { get; set; }
 
-        // Placa Mercosul (ex.: BRA2E19) – validação simples
+       
         [Required, StringLength(7, MinimumLength = 7)]
         [RegularExpression(@"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
             ErrorMessage = "Placa inválida (padrão Mercosul, ex: BRA2E19).")]
         public string Placa { get; set; } = string.Empty;
 
-        // VIN/chassi com 17 caracteres (sem I, O, Q)
+      
         [StringLength(17, MinimumLength = 17)]
         [RegularExpression(@"^[A-HJ-NPR-Z0-9]{17}$",
             ErrorMessage = "Chassi inválido (17 caracteres, sem I, O, Q).")]
@@ -23,7 +23,7 @@ namespace Loggu.Domain.Entity
         [Required]
         public StatusMoto Status { get; set; } = StatusMoto.ATIVA;
 
-        // 0 = falso, 1 = verdadeiro
+        
         [Required, Range(0, 1, ErrorMessage = "EmPatio deve ser 0 (false) ou 1 (true).")]
         public int EmPatio { get; set; } = 0;
     }

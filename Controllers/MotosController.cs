@@ -14,7 +14,7 @@ namespace Loggu.Controllers
         private readonly IMotoRepository _repo;
         public MotosController(IMotoRepository repo) => _repo = repo;
 
-        // ----- Mapper DRY -----
+        
         private static MotoReadDto ToResponse(Moto m) => new()
         {
             Id = m.Id,
@@ -24,7 +24,7 @@ namespace Loggu.Controllers
             EmPatio = m.EmPatio
         };
 
-        // GET api/motos?status=0&placa=BRA&page=1&pageSize=20
+        
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MotoReadDto>), 200)]
         public async Task<ActionResult<IEnumerable<MotoReadDto>>> Get(
@@ -40,7 +40,7 @@ namespace Loggu.Controllers
             return Ok(items.Select(ToResponse));
         }
 
-        // GET api/motos/5
+        
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(MotoReadDto), 200)]
         [ProducesResponseType(404)]
@@ -51,7 +51,7 @@ namespace Loggu.Controllers
             return Ok(ToResponse(moto));
         }
 
-        // GET api/motos/search?placa=BRA
+        
         [HttpGet("search")]
         [ProducesResponseType(typeof(IEnumerable<MotoReadDto>), 200)]
         public async Task<ActionResult<IEnumerable<MotoReadDto>>> Search([FromQuery] string? placa, CancellationToken ct = default)
@@ -60,7 +60,7 @@ namespace Loggu.Controllers
             return Ok(motos.Select(ToResponse));
         }
 
-        // POST api/motos
+      
         [HttpPost]
         [ProducesResponseType(typeof(MotoReadDto), 201)]
         [ProducesResponseType(400)]
@@ -73,7 +73,7 @@ namespace Loggu.Controllers
                 Placa = (request.Placa ?? string.Empty).Trim().ToUpperInvariant(),
                 Chassi = string.IsNullOrWhiteSpace(request.Chassi) ? null : request.Chassi.Trim().ToUpperInvariant(),
                 Status = (StatusMoto)request.Status,
-                EmPatio = 0 // sempre começa fora; muda via Movimento de Pátio
+                EmPatio = 0 
             };
 
             try
@@ -82,13 +82,13 @@ namespace Loggu.Controllers
                 var response = ToResponse(entity);
                 return CreatedAtAction(nameof(GetById), new { id }, response);
             }
-            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) // duplicate key
+            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) 
             {
                 return BadRequest("Placa já cadastrada.");
             }
         }
 
-        // PUT api/motos/5
+        
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -103,7 +103,7 @@ namespace Loggu.Controllers
             moto.Placa = (request.Placa ?? string.Empty).Trim().ToUpperInvariant();
             moto.Chassi = string.IsNullOrWhiteSpace(request.Chassi) ? null : request.Chassi.Trim().ToUpperInvariant();
             moto.Status = (StatusMoto)request.Status;
-            // EmPatio NÃO muda aqui (apenas via MovimentoPatio)
+            
 
             try
             {
@@ -111,13 +111,13 @@ namespace Loggu.Controllers
                 if (!ok) return NotFound();
                 return NoContent();
             }
-            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) // duplicate key
+            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) 
             {
                 return BadRequest("Placa já cadastrada.");
             }
         }
 
-        // DELETE api/motos/5
+        
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

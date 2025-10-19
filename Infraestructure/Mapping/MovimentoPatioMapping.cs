@@ -1,4 +1,4 @@
-﻿// src/Infraestructure/Mapping/MovimentoPatioMapping.cs
+﻿
 using Loggu.Domain.Entity;
 using Loggu.Infraestructure.Context;
 using MongoDB.Bson;
@@ -14,24 +14,22 @@ namespace Loggu.Infraestructure.Mapping
         {
             var db = ctx.Database;
 
-            // ---- Validator equivalente ao mapeamento EF ----
-            // Requer: Id, MotoId, Tipo, Quando
-            // Observacao: string (até 500) ou null
+
             var validator = new BsonDocument
             {
                 {
                     "$jsonSchema", new BsonDocument
                     {
                         { "bsonType", "object" },
-                        { "required", new BsonArray { "Id", "MotoId", "Tipo", "Quando" } },
+                        { "required", new BsonArray { "_id", "MotoId", "Tipo", "Quando" } },
                         {
                             "properties", new BsonDocument
                             {
-                                { "Id", new BsonDocument { { "bsonType", "int" } } },
+                                { "_id", new BsonDocument { { "bsonType", "int" } } },
                                 { "MotoId", new BsonDocument { { "bsonType", "int" } } },
                                 { "RealizadoPorUsuarioId", new BsonDocument { { "bsonType", new BsonArray { "int", "null" } } } },
-                                { "Tipo", new BsonDocument { { "bsonType", "int" } } },     // enum como int
-                                { "Quando", new BsonDocument { { "bsonType", "date" } } }, // DateTime -> date
+                                { "Tipo", new BsonDocument { { "bsonType", "int" } } },     
+                                { "Quando", new BsonDocument { { "bsonType", "date" } } }, 
                                 {
                                     "Observacao", new BsonDocument
                                     {
@@ -45,7 +43,7 @@ namespace Loggu.Infraestructure.Mapping
                 }
             };
 
-            // Cria/atualiza coleção com validator
+         
             var collections = db.ListCollectionNames().ToList();
             if (!collections.Contains(CollectionName))
             {
@@ -68,23 +66,18 @@ namespace Loggu.Infraestructure.Mapping
                 db.RunCommand<BsonDocument>(cmd);
             }
 
-            // ---- Índices (equivalentes aos do EF) ----
+          
             var col = db.GetCollection<MovimentoPatio>(CollectionName);
             var indexes = new List<CreateIndexModel<MovimentoPatio>>
             {
-                // PK em Id
-                new(
-                    Builders<MovimentoPatio>.IndexKeys.Ascending(x => x.Id),
-                    new CreateIndexOptions { Name = "pk_movimentopatio_id", Unique = true }
-                ),
-                // Índice útil: (MotoId, Quando)
+   
                 new(
                     Builders<MovimentoPatio>.IndexKeys.Ascending(x => x.MotoId).Ascending(x => x.Quando),
                     new CreateIndexOptions { Name = "ix_movimentopatio_motoid_quando" }
                 )
             };
 
-            // Opcional: se você costuma filtrar por Tipo
+            
             indexes.Add(
                 new CreateIndexModel<MovimentoPatio>(
                     Builders<MovimentoPatio>.IndexKeys.Ascending(x => x.Tipo),

@@ -14,7 +14,7 @@ namespace Loggu.Controllers
         private readonly IUsuarioRepository _repo;
         public UsuariosController(IUsuarioRepository repo) => _repo = repo;
 
-        // ----- Mapper DRY (opcional) -----
+      
         private static Usuario ToResponse(Usuario u) => new()
         {
             Id = u.Id,
@@ -24,7 +24,7 @@ namespace Loggu.Controllers
             Ativo = u.Ativo
         };
 
-        // GET api/usuarios?page=1&pageSize=20
+      
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Usuario>), 200)]
         public async Task<ActionResult<IEnumerable<Usuario>>> Get(
@@ -38,7 +38,7 @@ namespace Loggu.Controllers
             return Ok(items.Select(ToResponse));
         }
 
-        // GET api/usuarios/5
+       
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(Usuario), 200)]
         [ProducesResponseType(404)]
@@ -49,7 +49,7 @@ namespace Loggu.Controllers
             return Ok(ToResponse(u));
         }
 
-        // POST api/usuarios
+     
         [HttpPost]
         [ProducesResponseType(typeof(Usuario), 201)]
         [ProducesResponseType(400)]
@@ -70,13 +70,13 @@ namespace Loggu.Controllers
                 var id = await _repo.CreateAsync(entity, ct);
                 return CreatedAtAction(nameof(GetById), new { id }, ToResponse(entity));
             }
-            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) // chave única (ex.: email)
+            catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000) 
             {
                 return BadRequest("E-mail já cadastrado.");
             }
         }
 
-        // PUT api/usuarios/5
+        
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -105,7 +105,7 @@ namespace Loggu.Controllers
             }
         }
 
-        // DELETE api/usuarios/5
+       
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

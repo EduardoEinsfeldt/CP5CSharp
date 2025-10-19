@@ -1,4 +1,4 @@
-﻿// src/Infrastructure/Repositories/MovimentoPatioRepository.cs
+﻿
 using Loggu.Domain.Entity;
 using Loggu.Domain.Repositories;
 using Loggu.Infraestructure.Context;
@@ -17,23 +17,7 @@ namespace Loggu.Infrastructure.Repositories
             _col = ctx.MovimentosPatio;
             _counters = ctx.Database.GetCollection<BsonDocument>("_counters");
 
-            // Índices essenciais (segurança dupla caso o Mapping ainda não tenha rodado):
-            var indexes = new List<CreateIndexModel<MovimentoPatio>>
-            {
-                new(
-                    Builders<MovimentoPatio>.IndexKeys.Ascending(x => x.Id),
-                    new CreateIndexOptions { Name = "pk_movimentopatio_id", Unique = true }
-                ),
-                new(
-                    Builders<MovimentoPatio>.IndexKeys.Descending(x => x.MotoId).Descending(x => x.Quando),
-                    new CreateIndexOptions { Name = "ix_movimentopatio_motoid_quando" }
-                ),
-                new(
-                    Builders<MovimentoPatio>.IndexKeys.Ascending(x => x.Tipo),
-                    new CreateIndexOptions { Name = "ix_movimentopatio_tipo" }
-                )
-            };
-            _col.Indexes.CreateMany(indexes);
+ 
         }
 
         private async Task<int> NextIdAsync(CancellationToken ct)
@@ -68,7 +52,7 @@ namespace Loggu.Infrastructure.Repositories
                 filter &= Builders<MovimentoPatio>.Filter.Eq(x => x.RealizadoPorUsuarioId, realizadoPorUsuarioId.Value);
 
             if (tipo.HasValue)
-                filter &= Builders<MovimentoPatio>.Filter.Eq("Tipo", tipo.Value); // enum como int
+                filter &= Builders<MovimentoPatio>.Filter.Eq("Tipo", tipo.Value); 
 
             if (de.HasValue)
             {
@@ -118,7 +102,7 @@ namespace Loggu.Infrastructure.Repositories
             return res.IsAcknowledged && res.DeletedCount > 0;
         }
 
-        // --- helpers ---
+
         private static DateTime EnsureUtc(DateTime dt)
         {
             if (dt.Kind == DateTimeKind.Utc) return dt;

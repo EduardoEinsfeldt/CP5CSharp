@@ -21,7 +21,7 @@ namespace Loggu.Controllers
             _motoRepo = motoRepo;
         }
 
-        // --- helpers ---
+
         private static DateTime EnsureUtc(DateTime dt)
         {
             if (dt == default) return DateTime.UtcNow;
@@ -30,15 +30,7 @@ namespace Loggu.Controllers
             return DateTime.SpecifyKind(dt, DateTimeKind.Utc);
         }
 
-        // POST api/movimentos
-        // body (MovimentoPatioCreateDto):
-        // {
-        //   "motoId": 1,
-        //   "realizadoPorUsuarioId": 2,
-        //   "tipo": 0,            // 0=ENTRADA, 1=SAIDA
-        //   "quando": "2025-09-30T22:00:00Z",
-        //   "observacao": "checagem ok"
-        // }
+
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
@@ -46,21 +38,21 @@ namespace Loggu.Controllers
         {
             if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-            // valida moto
+   
             var moto = await _motoRepo.GetByIdAsync(dto.MotoId, ct);
             if (moto is null) return BadRequest("Moto não encontrada.");
 
-            // valida tipo
+          
             if (dto.Tipo != (int)TipoMovimento.ENTRADA && dto.Tipo != (int)TipoMovimento.SAIDA)
                 return BadRequest("Tipo inválido (0=ENTRADA, 1=SAIDA).");
 
-            // regras simples de consistência
+           
             if (dto.Tipo == (int)TipoMovimento.ENTRADA && moto.EmPatio == 1)
                 return BadRequest("Moto já está no pátio.");
             if (dto.Tipo == (int)TipoMovimento.SAIDA && moto.EmPatio == 0)
                 return BadRequest("Moto já está fora do pátio.");
 
-            // monta entidade (normaliza data para UTC)
+         
             var mov = new MovimentoPatio
             {
                 MotoId = dto.MotoId,
@@ -70,10 +62,9 @@ namespace Loggu.Controllers
                 Observacao = dto.Observacao
             };
 
-            // 1) cria movimento
+            
             var movId = await _movRepo.CreateAsync(mov, ct);
 
-            // 2) ajusta estado da moto
             moto.EmPatio = (mov.Tipo == TipoMovimento.ENTRADA) ? 1 : 0;
             var ok = await _motoRepo.UpdateAsync(moto, ct);
             if (!ok) return BadRequest("Não foi possível atualizar o estado da moto.");
@@ -81,7 +72,7 @@ namespace Loggu.Controllers
             return CreatedAtAction(nameof(ListarPorMoto), new { motoId = dto.MotoId }, null);
         }
 
-        // GET api/movimentos/moto/5?page=1&pageSize=20
+        
         [HttpGet("moto/{motoId:int}")]
         [ProducesResponseType(typeof(IEnumerable<MovimentoPatio>), 200)]
         [ProducesResponseType(400)]

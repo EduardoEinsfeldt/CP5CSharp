@@ -19,11 +19,11 @@ namespace Loggu.Infraestructure.Mapping
                     "$jsonSchema", new BsonDocument
                     {
                         { "bsonType", "object" },
-                        { "required", new BsonArray { "Id", "Placa", "Status", "EmPatio" } },
+                        { "required", new BsonArray { "_id", "Placa", "Status", "EmPatio" } },
                         {
                             "properties", new BsonDocument
                             {
-                                { "Id", new BsonDocument { { "bsonType", "int" } } },
+                                { "_id", new BsonDocument { { "bsonType", "int" } } },
                                 {
                                     "Placa", new BsonDocument
                                     {
@@ -78,10 +78,7 @@ namespace Loggu.Infraestructure.Mapping
             var col = db.GetCollection<Moto>(CollectionName);
             var indexes = new List<CreateIndexModel<Moto>>
             {
-                new(
-                    Builders<Moto>.IndexKeys.Ascending(m => m.Id),
-                    new CreateIndexOptions { Name = "pk_moto_id", Unique = true }
-                ),
+  
                 new(
                     Builders<Moto>.IndexKeys.Ascending(m => m.Placa),
                     new CreateIndexOptions { Name = "uk_moto_placa", Unique = true }

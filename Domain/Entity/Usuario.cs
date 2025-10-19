@@ -17,7 +17,7 @@ namespace Loggu.Domain.Entity
         [Required]
         public PerfilUsuario Perfil { get; set; } = PerfilUsuario.OPERADOR;
 
-        // 0 = inativo, 1 = ativo
+      
         [Required, Range(0, 1, ErrorMessage = "Ativo deve ser 0 (false) ou 1 (true).")]
         public int Ativo { get; set; } = 1;
     }

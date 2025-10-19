@@ -15,10 +15,10 @@ namespace Loggu.Infraestructure.Mapping
             var validator = new BsonDocument {
                 { "$jsonSchema", new BsonDocument {
                     { "bsonType", "object" },
-                    // Required fields from Ocorrencia.cs
-                    { "required", new BsonArray { "Id", "MotoId", "Categoria", "AcontecidoEm" } },
+                   
+                    { "required", new BsonArray { "_id", "MotoId", "Categoria", "AcontecidoEm" } },
                     { "properties", new BsonDocument {
-                        { "Id", new BsonDocument { { "bsonType", "int" } } },
+                        { "_id", new BsonDocument { { "bsonType", "int" } } },
                         { "MotoId", new BsonDocument { { "bsonType", "int" } } },
                         { "Categoria", new BsonDocument { { "bsonType", "string" }, { "maxLength", 40 } } },
                         { "AcontecidoEm", new BsonDocument { { "bsonType", "date" } } },
@@ -36,7 +36,7 @@ namespace Loggu.Infraestructure.Mapping
             var col = db.GetCollection<Ocorrencia>(CollectionName);
             var indexes = new List<CreateIndexModel<Ocorrencia>>
             {
-                new(Builders<Ocorrencia>.IndexKeys.Ascending(x => x.Id), new CreateIndexOptions { Name = "pk_ocorrencia_id", Unique = true }),
+       
                 new(Builders<Ocorrencia>.IndexKeys.Ascending(x => x.MotoId).Descending(x => x.AcontecidoEm), new CreateIndexOptions { Name = "ix_ocorrencia_motoid_acontecidoem" })
             };
             col.Indexes.CreateMany(indexes);

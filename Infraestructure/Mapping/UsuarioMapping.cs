@@ -1,4 +1,4 @@
-﻿// src/Infrastructure/Mapping/UsuarioMapping.cs
+﻿
 using Loggu.Domain.Entity;
 using Loggu.Infraestructure.Context;
 using MongoDB.Bson;
@@ -13,19 +13,17 @@ namespace Loggu.Infraestructure.Mapping
         public static void Ensure(LogguContext ctx)
         {
             var db = ctx.Database;
-
-            // ----- Validator (equivalente às constraints do EF) -----
             var validator = new BsonDocument
             {
                 {
                     "$jsonSchema", new BsonDocument
                     {
                         { "bsonType", "object" },
-                        { "required", new BsonArray { "Id", "Nome", "Perfil", "Ativo" } },
+                        { "required", new BsonArray { "_id", "Nome", "Perfil", "Ativo" } },
                         {
                             "properties", new BsonDocument
                             {
-                                { "Id", new BsonDocument { { "bsonType", "int" } } },
+                                { "_id", new BsonDocument { { "bsonType", "int" } } },
                                 {
                                     "Nome", new BsonDocument
                                     {
@@ -38,15 +36,14 @@ namespace Loggu.Infraestructure.Mapping
                                     {
                                         { "bsonType", new BsonArray { "string", "null" } },
                                         { "maxLength", 160 }
-                                        // opcional: regex simples de e-mail (comente se preferir)
-                                        // { "pattern", "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" }
+        
                                     }
                                 },
-                                { "Perfil", new BsonDocument { { "bsonType", "int" } } }, // enum como int
+                                { "Perfil", new BsonDocument { { "bsonType", "int" } } }, 
                                 {
                                     "Ativo", new BsonDocument
                                     {
-                                        { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } // 0/1
+                                        { "bsonType", "int" }, { "minimum", 0 }, { "maximum", 1 } 
                                     }
                                 }
                             }
@@ -55,7 +52,6 @@ namespace Loggu.Infraestructure.Mapping
                 }
             };
 
-            // Cria ou atualiza a coleção com o validator (sem usar enums de outro assembly)
             var collections = db.ListCollectionNames().ToList();
             if (!collections.Contains(CollectionName))
             {
@@ -78,16 +74,10 @@ namespace Loggu.Infraestructure.Mapping
                 db.RunCommand<BsonDocument>(cmd);
             }
 
-            // ----- Índices -----
             var col = db.GetCollection<Usuario>(CollectionName);
             var indexes = new List<CreateIndexModel<Usuario>>
             {
-                // PK equivalente
-                new(
-                    Builders<Usuario>.IndexKeys.Ascending(u => u.Id),
-                    new CreateIndexOptions { Name = "pk_usuario_id", Unique = true }
-                ),
-                // Email único e "sparse": permite múltiplos nulls/não informados
+     
                 new(
                     Builders<Usuario>.IndexKeys.Ascending(u => u.Email),
                     new CreateIndexOptions { Name = "uk_usuario_email", Unique = true, Sparse = true }

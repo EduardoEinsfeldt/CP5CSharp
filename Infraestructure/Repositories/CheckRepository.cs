@@ -13,7 +13,7 @@ namespace Loggu.Infrastructure.Repositories
 
         public CheckRepository(LogguContext ctx)
         {
-            _col = ctx.Checks; // This comes from LogguContext
+            _col = ctx.Checks; 
             _counters = ctx.Database.GetCollection<BsonDocument>("_counters");
         }
 
