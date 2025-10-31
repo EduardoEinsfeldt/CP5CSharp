@@ -45,9 +45,18 @@ steps:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'drop'
 
+- task: ArchiveFiles@2
+  displayName: 'Compactar artefatos em .zip'
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/Loggu.zip'
+    replaceExistingArchive: true
+
 - task: AzureWebApp@1
   displayName: 'Deploy no Azure App Service'
   inputs:
     azureSubscription: 'MyAzureSubscription'
     appName: 'cp6devops'
-    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    package: '$(Build.ArtifactStagingDirectory)/Loggu.zip'
