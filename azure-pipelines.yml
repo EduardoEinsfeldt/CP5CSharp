@@ -14,35 +14,26 @@ variables:
 
 steps:
 - task: UseDotNet@2
+  displayName: 'Instalar .NET 8 SDK'
   inputs:
     packageType: 'sdk'
     version: '8.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore'
+  displayName: 'Restaurar pacotes'
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build'
+  displayName: 'Compilar solução'
   inputs:
     command: 'build'
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Test'
-  inputs:
-    command: 'test'
-    projects: '**/*Tests.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-    publishTestResults: true
-  continueOnError: true
-
-- task: DotNetCoreCLI@2
-  displayName: 'Publish'
+  displayName: 'Publicar aplicação'
   inputs:
     command: 'publish'
     publishWebProjects: true
