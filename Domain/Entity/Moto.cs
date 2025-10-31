@@ -9,7 +9,7 @@ namespace Loggu.Domain.Entity
         public int Id { get; set; }
 
         //Colocando um Comentário para testar Devops <- Foi adicionado antes e tinha ido.
-        //Adicionando novo comentário. Não sei o que havia acontecido.
+        //Adicionando novo comentário. Não sei o que havia acontecido. Não sei o que está acontecendo mais.
        
         [Required, StringLength(7, MinimumLength = 7)]
         [RegularExpression(@"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
