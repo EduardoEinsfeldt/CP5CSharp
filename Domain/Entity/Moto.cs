@@ -8,6 +8,7 @@ namespace Loggu.Domain.Entity
         [Key]
         public int Id { get; set; }
 
+        //Colocando um Comentário para testar Devops.
        
         [Required, StringLength(7, MinimumLength = 7)]
         [RegularExpression(@"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
